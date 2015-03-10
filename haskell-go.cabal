@@ -19,4 +19,5 @@ executable haskell-go
   -- other-modules:       
   build-depends:       base >= 4.6,
                        ansi-terminal,
-                       vty-ui
+                       vty-ui,
+                       parsec

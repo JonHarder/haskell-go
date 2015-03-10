@@ -3,7 +3,7 @@ module Board where
 import Data.List (intercalate)
 import Move
 
-data Board = Board [[Point]]
+data Board = Board [[Point]] deriving Eq
 data Point = Empty | Stone Player deriving Eq
 
 type Row = (Int, [Point])
@@ -63,5 +63,13 @@ boardGet (Board b) (Coord (x,y)) = b !! y !! x
 setAt :: [a] -> Int -> a -> [a]
 setAt l index val = take index l ++ [val] ++ drop (index+1) l
 
+isCoordOnBoard :: PlayerResponse -> Board -> Bool
+isCoordOnBoard (Coord (x,y)) board = let (boardX, boardY) = boardDimensions board
+                                     in x >= 0 && x < boardX
+                                        && y >= 0 && y < boardY
+
+
 boardSet :: Board -> PlayerResponse -> Player -> Board
-boardSet (Board b) (Coord (x,y)) p = Board $ setAt b y $ setAt (b !! y) x (Stone p)
+boardSet board@(Board b) coord@(Coord (x,y)) p = if isCoordOnBoard coord board then
+                                                   Board $ setAt b y $ setAt (b !! y) x (Stone p)
+                                                 else board

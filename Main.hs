@@ -26,4 +26,7 @@ main = do
           MetaResponse Exit -> putStrLn "Bye!"
           MetaResponse Save -> putStrLn "Not implimented yet"
           Coord _ -> let newBoard = boardSet b move (head players)
-                     in loop (tail players) newBoard
+                     in if newBoard == b then
+                          putStrLn "Position is off the board." >> loop players b
+                        else
+                          loop (tail players) newBoard
