@@ -41,7 +41,9 @@ showRow (num, points) = let rowStr ps = unwords (map show ps)
                                                   plusRowStr points
                                                 else
                                                   rowStr points
-                        in show num ++ spacing num ++ showPoints points ++ spacing num ++ show num
+                        in " " ++ show num
+                           ++ spacing num ++ showPoints points
+                           ++ spacing num ++ show num
 
 -- TODO: make showBoard inteligently add +'s based on size of board
 -- instead of hard coding them
@@ -51,9 +53,9 @@ showBoard b = do
       charToString = \x -> [x]
       alpha = map charToString $ take width ['A'..'Z']
       letters = intercalate " " alpha
-  "   " ++ letters ++ "\n" ++
+  "    " ++ letters ++ "\n" ++
     unlines (map showRow $ reverse (numerate b)) ++
-    "   " ++ letters
+    "    " ++ letters
 
 -- Board modifying/searching/logic functions
 

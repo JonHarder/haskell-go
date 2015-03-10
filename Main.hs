@@ -5,7 +5,6 @@ import qualified System.Console.ANSI as A
 
 import Board
 import Move
-import Control.Monad (when)
 
 data Turn = One | Two deriving Show
 
@@ -20,13 +19,14 @@ main = do
  where loop players b message = do
          A.clearScreen
          A.setCursorPosition 0 0
-         when (not (null message)) $ putStrLn message
+         putStrLn $ "Message: " ++ message ++ "\n"
          print b
+         putStr "\n"
          move <- getMove $ head players
          case move of
           MetaResponse Pass -> loop (tail players) b (show (head players) ++ " passed")
           MetaResponse Exit -> putStrLn "Bye!"
-          MetaResponse Save -> loop players b "Not implimented yet"
+          MetaResponse Save -> loop players b "save feature is not implimented yet"
           Coord _ -> let newBoard = boardSet b move (head players)
                      in if newBoard == b then
                           loop players b "Position is off the board."
