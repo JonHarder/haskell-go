@@ -16,6 +16,9 @@ instance Show Point where
     White -> "O"
     Black -> "X"
 
+instance Show Board where
+  show = showBoard
+
 boardDimensions :: Board -> (Int, Int)
 boardDimensions (Board b) = (length b, length (head b))
 
@@ -44,12 +47,14 @@ showRow (num, points) = let rowStr ps = unwords (map show ps)
                                                   rowStr points
                         in show num ++ spacing num ++ showPoints points ++ spacing num ++ show num
 
-printBoard :: Board -> IO ()
-printBoard b = do
+-- TODO: make showBoard inteligently add +'s based on size of board
+-- instead of hard coding them
+showBoard :: Board -> String
+showBoard b = do
   let (height, width) = boardDimensions b
       charToString = \x -> [x]
       alpha = map charToString $ take width ['A'..'Z']
       letters = intercalate " " alpha
-  putStrLn $ "   " ++ letters
-  mapM_ (putStrLn . showRow) $ reverse (numerate b)
-  putStrLn $ "   " ++ letters
+  "   " ++ letters ++ "\n" ++
+    unlines (map showRow $ reverse (numerate b)) ++
+    "   " ++ letters

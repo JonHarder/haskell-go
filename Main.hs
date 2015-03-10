@@ -12,6 +12,6 @@ main = do
   -- setSGR [SetColor Foreground Vivid Red]
   -- setSGR [SetColor Background Vivid Green]
   let board = initialBoard $ Nothing
-  B.printBoard board
+  print board
   -- setSGR [Reset]
   -- print $ boardDimensions initialBoard
