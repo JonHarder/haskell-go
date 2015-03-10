@@ -41,7 +41,10 @@ prompt s = do
 -- | Repeatedly prompts player for a game move until a valid coord is entered
 getMove :: Player -> IO Coord
 getMove p = do
-  move <- prompt $ (show p ++ ": ")
+  let player = case p of
+        Black -> "Black"
+        White -> "White"
+  move <- prompt $ player ++ ": "
   case parse coord "Failed to parse coord" move of
    Left _ -> putStrLn "Not a valid move." >> getMove p
    Right coord -> return coord
