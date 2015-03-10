@@ -21,5 +21,9 @@ main = do
          A.setCursorPosition 0 0
          print b
          move <- getMove $ head players
-         let newBoard = boardSet b move (head players)
-         loop (tail players) newBoard
+         case move of
+          MetaResponse Pass -> loop (tail players) b
+          MetaResponse Exit -> putStrLn "Bye!"
+          MetaResponse Save -> putStrLn "Not implimented yet"
+          Coord _ -> let newBoard = boardSet b move (head players)
+                     in loop (tail players) newBoard

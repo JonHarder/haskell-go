@@ -57,11 +57,11 @@ showBoard b = do
 
 -- Board modifying/searching/logic functions
 
-boardGet :: Board -> Coord -> Point
+boardGet :: Board -> PlayerResponse -> Point
 boardGet (Board b) (Coord (x,y)) = b !! y !! x
 
 setAt :: [a] -> Int -> a -> [a]
 setAt l index val = take index l ++ [val] ++ drop (index+1) l
 
-boardSet :: Board -> Coord -> Player -> Board
+boardSet :: Board -> PlayerResponse -> Player -> Board
 boardSet (Board b) (Coord (x,y)) p = Board $ setAt b y $ setAt (b !! y) x (Stone p)
