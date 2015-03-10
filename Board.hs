@@ -1,20 +1,19 @@
 module Board where
 
 import Data.List (intercalate)
+import Move as M
 
 data Board = Board [[Point]]
+data Point = Empty | Stone Color deriving Eq
+data Color = White | Black deriving Eq
 
 type Row = (Int, [Point])
-
-data Point = Empty | Stone Color deriving Eq
-
-data Color = White | Black deriving Eq
 
 instance Show Point where
   show Empty = "."
   show (Stone s) = case s of
-    White -> "O"
-    Black -> "X"
+    Board.White -> "O"
+    Board.Black -> "X"
 
 instance Show Board where
   show = showBoard
@@ -58,3 +57,8 @@ showBoard b = do
   "   " ++ letters ++ "\n" ++
     unlines (map showRow $ reverse (numerate b)) ++
     "   " ++ letters
+
+-- Board modifying/searching/logic functions
+
+boardGet :: Board -> M.Coord -> Point
+boardGet (Board b) (M.Coord (x,y)) = b !! y !! x
