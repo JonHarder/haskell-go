@@ -5,6 +5,7 @@ import qualified System.Console.ANSI as A
 
 import Board
 import Move
+import Control.Monad (when)
 
 data Turn = One | Two deriving Show
 
@@ -15,18 +16,19 @@ main = do
   -- setSGR [SetColor Foreground Vivid Red]
   -- setSGR [SetColor Background Vivid Green]
   let board = initialBoard $ Nothing
-  loop playerSeq board
- where loop players b = do
+  loop playerSeq board ""
+ where loop players b message = do
          A.clearScreen
          A.setCursorPosition 0 0
+         when (not (null message)) $ putStrLn message
          print b
          move <- getMove $ head players
          case move of
-          MetaResponse Pass -> loop (tail players) b
+          MetaResponse Pass -> loop (tail players) b (show (head players) ++ " passed")
           MetaResponse Exit -> putStrLn "Bye!"
-          MetaResponse Save -> putStrLn "Not implimented yet"
+          MetaResponse Save -> loop players b "Not implimented yet"
           Coord _ -> let newBoard = boardSet b move (head players)
                      in if newBoard == b then
-                          putStrLn "Position is off the board." >> loop players b
+                          loop players b "Position is off the board."
                         else
-                          loop (tail players) newBoard
+                          loop (tail players) newBoard ""
