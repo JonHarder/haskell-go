@@ -47,7 +47,7 @@ metaCommand :: Parser PlayerResponse
 metaCommand = fmap MetaResponse $ choice [pass,exit,save]
 
 move :: Parser PlayerResponse
-move = choice [metaCommand, coord]
+move = try coord <|> metaCommand
 
 prompt :: String -> IO String
 prompt s = do
