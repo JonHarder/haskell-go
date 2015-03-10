@@ -4,16 +4,13 @@ import Data.List (intercalate)
 import Move as M
 
 data Board = Board [[Point]]
-data Point = Empty | Stone Color deriving Eq
-data Color = White | Black deriving Eq
+data Point = Empty | Stone M.Player deriving Eq
 
 type Row = (Int, [Point])
 
 instance Show Point where
   show Empty = "."
-  show (Stone s) = case s of
-    Board.White -> "O"
-    Board.Black -> "X"
+  show (Stone c) = show c
 
 instance Show Board where
   show = showBoard
@@ -62,3 +59,9 @@ showBoard b = do
 
 boardGet :: Board -> M.Coord -> Point
 boardGet (Board b) (M.Coord (x,y)) = b !! y !! x
+
+setAt :: [a] -> Int -> a -> [a]
+setAt l index val = take index l ++ [val] ++ drop (index+1) l
+
+boardSet :: Board -> M.Coord -> M.Player -> Board
+boardSet (Board b) (M.Coord (x,y)) p = Board $ setAt b y $ setAt (b !! y) x (Stone p)

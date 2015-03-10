@@ -7,7 +7,11 @@ import System.IO
 
 data Coord = Coord (Int, Int)
 
-data Player = White | Black deriving Show
+data Player = White | Black deriving Eq
+
+instance Show Player where
+  show White = "O"
+  show Black = "X"
 
 instance Show Coord where
   show (Coord (x,y)) = numberToLetter x : show y
