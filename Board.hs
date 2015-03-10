@@ -1,10 +1,10 @@
 module Board where
 
 import Data.List (intercalate)
-import Move as M
+import Move
 
 data Board = Board [[Point]]
-data Point = Empty | Stone M.Player deriving Eq
+data Point = Empty | Stone Player deriving Eq
 
 type Row = (Int, [Point])
 
@@ -57,11 +57,11 @@ showBoard b = do
 
 -- Board modifying/searching/logic functions
 
-boardGet :: Board -> M.Coord -> Point
-boardGet (Board b) (M.Coord (x,y)) = b !! y !! x
+boardGet :: Board -> Coord -> Point
+boardGet (Board b) (Coord (x,y)) = b !! y !! x
 
 setAt :: [a] -> Int -> a -> [a]
 setAt l index val = take index l ++ [val] ++ drop (index+1) l
 
-boardSet :: Board -> M.Coord -> M.Player -> Board
-boardSet (Board b) (M.Coord (x,y)) p = Board $ setAt b y $ setAt (b !! y) x (Stone p)
+boardSet :: Board -> Coord -> Player -> Board
+boardSet (Board b) (Coord (x,y)) p = Board $ setAt b y $ setAt (b !! y) x (Stone p)
