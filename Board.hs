@@ -5,6 +5,8 @@ import Move
 
 data Board = Board [[Point]] deriving Eq
 data Point = Empty | Stone Player deriving Eq
+data MoveError = Occupied | Ko | Suicide | OutOfBounds deriving Eq
+type MoveResult = Either MoveError Board
 
 type Row = (Int, [Point])
 
@@ -71,7 +73,17 @@ isCoordOnBoard (Coord (x,y)) board = let (boardX, boardY) = boardDimensions boar
                                         && y >= 0 && y < boardY
 
 
-boardSet :: Board -> PlayerResponse -> Player -> Board
-boardSet board@(Board b) coord@(Coord (x,y)) p = if isCoordOnBoard coord board then
-                                                   Board $ setAt b y $ setAt (b !! y) x (Stone p)
-                                                 else board
+-- boardSet :: Board -> PlayerResponse -> Player -> Board
+-- boardSet board@(Board b) coord@(Coord (x,y)) p = if isCoordOnBoard coord board then
+--                                                    Board $ setAt b y $ setAt (b !! y) x (Stone p)
+--                                                  else board
+
+boardSet :: Board -> PlayerResponse -> Player -> MoveResult
+boardSet board@(Board b) coord@(Coord (x,y)) p =
+  if isCoordOnBoard coord board  then
+    if not $ boardGet board coord == Empty then
+      Left Occupied
+    else
+      let newBoard = Board $ setAt b y $ setAt (b !! y) x (Stone p)
+      in Right newBoard
+  else Left OutOfBounds

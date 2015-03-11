@@ -5,7 +5,7 @@ import Data.Char (toUpper)
 import Data.Maybe (fromJust)
 import System.IO
 
-data PlayerResponse = Coord (Int, Int) | MetaResponse Option
+data PlayerResponse = Coord (Int, Int) | MetaResponse Option | Invalid
 data Option = Pass | Exit | Save deriving Show
 
 data Player = White | Black deriving Eq
@@ -63,5 +63,6 @@ getMove p = do
         White -> "White"
   response <- prompt $ player ++ ": "
   case parse move "Failed to parse move" response of
-   Left _ -> putStrLn "Not a valid move." >> getMove p
+   -- Left _ -> putStrLn "Not a valid move." >> getMove p
+   Left _ -> return Invalid
    Right m -> return m
