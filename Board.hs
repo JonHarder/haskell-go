@@ -61,24 +61,19 @@ showBoard b = do
 
 -- Board modifying/searching/logic functions
 
-boardGet :: Board -> PlayerResponse -> Point
+boardGet :: Board -> Coord -> Point
 boardGet (Board b) (Coord (x,y)) = b !! y !! x
 
 setAt :: [a] -> Int -> a -> [a]
 setAt l index val = take index l ++ [val] ++ drop (index+1) l
 
-isCoordOnBoard :: PlayerResponse -> Board -> Bool
+isCoordOnBoard :: Coord -> Board -> Bool
 isCoordOnBoard (Coord (x,y)) board = let (boardX, boardY) = boardDimensions board
                                      in x >= 0 && x < boardX
                                         && y >= 0 && y < boardY
 
 
--- boardSet :: Board -> PlayerResponse -> Player -> Board
--- boardSet board@(Board b) coord@(Coord (x,y)) p = if isCoordOnBoard coord board then
---                                                    Board $ setAt b y $ setAt (b !! y) x (Stone p)
---                                                  else board
-
-boardSet :: Board -> PlayerResponse -> Player -> MoveResult
+boardSet :: Board -> Coord -> Player -> MoveResult
 boardSet board@(Board b) coord@(Coord (x,y)) p =
   if isCoordOnBoard coord board  then
     if not $ boardGet board coord == Empty then

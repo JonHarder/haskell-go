@@ -5,7 +5,8 @@ import Data.Char (toUpper)
 import Data.Maybe (fromJust)
 import System.IO
 
-data PlayerResponse = Coord (Int, Int) | MetaResponse Option | Invalid
+data PlayerResponse = Position Coord | MetaResponse Option | Invalid
+data Coord = Coord (Int, Int) deriving (Eq, Ord)
 data Option = Pass | Exit | Save deriving Show
 
 data Player = White | Black deriving Eq
@@ -15,8 +16,12 @@ instance Show Player where
   show Black = "X"
 
 instance Show PlayerResponse where
-  show (Coord (x,y)) = numberToLetter x : show (y+1)
+  show (Position c) = show c
   show (MetaResponse o) = show o
+  show Invalid = "Invalid"
+
+instance Show Coord where
+  show (Coord (x,y)) = numberToLetter x : show (y+1)
 
 letterToNumber :: Char -> Int
 letterToNumber c = fromJust $ lookup (toUpper c) (zip ['A'..'Z'] [0..])
@@ -32,7 +37,7 @@ coord = do
   x <- fmap letterToNumber $ oneOf $ ['A'..'Z'] ++ ['a'..'z']
   spaces
   y <- int
-  return $ Coord (x,y-1)
+  return $ Position $ Coord (x,y-1)
 
 pass :: Parser Option
 pass = choice [string "pass", string "Pass"] >> return Pass
