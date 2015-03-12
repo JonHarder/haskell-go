@@ -20,4 +20,5 @@ executable haskell-go
   build-depends:       base >= 4.6,
                        ansi-terminal,
                        vty-ui,
+                       containers,
                        parsec

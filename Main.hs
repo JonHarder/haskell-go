@@ -7,8 +7,6 @@ import Board
 import Move
 import Logic
 
-data Turn = One | Two deriving Show
-
 playerSeq = [Black, White] ++ playerSeq
 
 boardSet :: Board -> Coord -> Player -> MoveResult
