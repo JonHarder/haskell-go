@@ -11,6 +11,15 @@ data Turn = One | Two deriving Show
 
 playerSeq = [Black, White] ++ playerSeq
 
+boardSet :: Board -> Coord -> Player -> MoveResult
+boardSet board@(Board b) coord@(Coord (x,y)) p =
+  if isCoordOnBoard coord board  then
+    if not $ boardGet board coord == Empty then
+      Left Occupied
+    else
+      logic board coord p
+  else Left OutOfBounds
+
 main :: IO ()
 main = do
   let board = initialBoard $ Nothing
@@ -35,4 +44,4 @@ main = do
                              Left OutOfBounds -> loop players b mLastCoord "Position is off the board."
                              Left Ko -> loop players b mLastCoord "Invalid move due to ko rule."
                              Left Suicide -> loop players b mLastCoord "Move is suicidal."
-                             Right b -> loop (tail players) b (Just c) (show (head players) ++ " played at " ++ show c)
+                             Right b -> loop (tail players) b (Just c) ""
