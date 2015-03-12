@@ -14,9 +14,6 @@ instance Show Point where
   show Empty = "."
   show (Stone c) = show c
 
-instance Show Board where
-  show = showBoard
-
 boardDimensions :: Board -> (Int, Int)
 boardDimensions (Board b) = (length b, length (head b))
 
@@ -36,7 +33,7 @@ plusRowStr points = let numberPoints = zip [1..] points
                     in unwords $ map plusify numberPoints
 
 
-showRow :: Row -> String
+showRow :: Row -> Maybe Coord -> String
 showRow (num, points) = let rowStr ps = unwords (map show ps)
                             spacing n = if n < 10 then "  " else " "
                             showPoints points = if num `elem` [4,10,16] then
@@ -49,15 +46,15 @@ showRow (num, points) = let rowStr ps = unwords (map show ps)
 
 -- TODO: make showBoard inteligently add +'s based on size of board
 -- instead of hard coding them
-showBoard :: Board -> String
-showBoard b = do
+showBoard :: Board -> Maybe Coord -> String
+showBoard b mLastCoord =
   let (height, width) = boardDimensions b
       charToString = \x -> [x]
       alpha = map charToString $ take width ['A'..'Z']
       letters = intercalate " " alpha
-  "    " ++ letters ++ "\n" ++
-    unlines (map showRow $ reverse (numerate b)) ++
-    "    " ++ letters
+  in "    " ++ letters ++ "\n" ++
+     unlines (map (flip showRow ) $ reverse (numerate b) ++
+     "    " ++ letters
 
 -- Board modifying/searching/logic functions
 
