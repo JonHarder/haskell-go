@@ -8,7 +8,7 @@ import Move
 data Board = Board [[Point]] deriving Eq
 data Point = Empty | Stone Player deriving Eq
 data MoveError = Occupied | Ko | Suicide | OutOfBounds deriving Eq
-type MoveResult = Either MoveError Board
+type MoveResult = Either MoveError (Int, Board)
 
 type Row = (Int, [Point])
 

@@ -18,28 +18,38 @@ boardSet board@(Board b) coord@(Coord (x,y)) p =
       logic board coord p
   else Left OutOfBounds
 
+newline :: IO ()
+newline = putStr "\n"
+
 main :: IO ()
 main = do
   let board = initialBoard $ Nothing
-  loop playerSeq board Nothing ""
-  where loop :: [Player] -> Board -> Maybe Coord -> String -> IO ()
-        loop players b mLastCoord message = do
+  loop playerSeq board Nothing (0,0) ""
+  where loop :: [Player] -> Board -> Maybe Coord -> (Int,Int) -> String -> IO ()
+        loop players b mLastCoord (blackCaptured, whiteCaptured) message = do
+          let retry err = loop players b mLastCoord (blackCaptured, whiteCaptured) err
           A.clearScreen
           A.setCursorPosition 0 0
+          putStrLn $ "Black Captured: " ++ show blackCaptured
+          putStrLn $ "White Captured: " ++ show whiteCaptured
+          newline
           putStrLn $ "Message: " ++ message ++ "\n"
-          putStrLn $ showBoard b mLastCoord
-          putStr "\n"
-          -- move :: PlayerResponse
+          -- putStrLn $ showBoard b mLastCoord
+          print b
+          newline
           move <- getMove $ head players
           case move of
-           Invalid -> loop (players) b mLastCoord "Invalid move."
-           MetaResponse Pass -> loop (tail players) b mLastCoord (show (head players) ++ " passed")
+           Invalid -> retry "Invalid move."
+           MetaResponse Pass -> loop (tail players) b mLastCoord (blackCaptured, whiteCaptured) (show (head players) ++ " passed")
            MetaResponse Exit -> putStrLn "Bye!"
-           MetaResponse Save -> loop players b mLastCoord "save feature is not implimented yet"
+           MetaResponse Save -> retry "save feature is not implimented yet"
            Position c -> let result = boardSet b c (head players)
                          in case result of
-                             Left Occupied -> loop (players) b mLastCoord "Spaced is already occupied."
-                             Left OutOfBounds -> loop players b mLastCoord "Position is off the board."
-                             Left Ko -> loop players b mLastCoord "Invalid move due to ko rule."
-                             Left Suicide -> loop players b mLastCoord "Move is suicidal."
-                             Right b -> loop (tail players) b (Just c) ""
+                             Left Occupied -> retry "Spaced is already occupied."
+                             Left OutOfBounds -> retry "Position is off the board."
+                             Left Ko -> retry "Invalid move due to ko rule."
+                             Left Suicide -> retry "Move is suicidal."
+                             Right (numRemoved, b) -> let captured = case head players of
+                                                            White -> (numRemoved+blackCaptured, whiteCaptured)
+                                                            Black -> (blackCaptured, numRemoved+whiteCaptured)
+                                                      in loop (tail players) b (Just c) captured ""

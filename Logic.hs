@@ -38,12 +38,6 @@ getLiberties b c = let liberties coord = filter (\x -> boardGet b x == Empty) $ 
                        group = getGroup b c
                    in nub $ concat $ map liberties group
 
--- finds the group for the given coordinate on the given board
--- then removes (sets to empty) all connected like colored stones
-removeGroup :: Board -> Coord -> Board
-removeGroup b c = let group = getGroup b c
-                  in foldl removeStone b group
-
 -- looks at group connected to coord on board, returns true
 -- if group has no liberties, false if 1 or more liberties present
 isDeadGroup :: Board -> Coord -> Bool
@@ -59,7 +53,9 @@ isKo _ = False
 -- also if, after placing said stone and removing adjacent dead groups,
 -- the stone and its group (if any) is dead, revert back as the move is suicidal
 --
-placeAndRemoveDead :: Board -> Coord -> Player -> Board
+-- places stone without logic, removes adjacent stones if possible, returning
+-- number of stones removed and new board
+placeAndRemoveDead :: Board -> Coord -> Player -> (Int, Board)
 placeAndRemoveDead board@(Board b) coord@(Coord (x,y)) p =
   let newBoard = Board $ setAt b y $ setAt (b !! y) x (Stone p) :: Board
       opponent = if p == White then Black else White
@@ -67,12 +63,12 @@ placeAndRemoveDead board@(Board b) coord@(Coord (x,y)) p =
       opponentGroups = map (getGroup newBoard) opponentAdjacent
       coords = nub $ concat opponentGroups
       deadCoords = filter (isDeadGroup newBoard) coords
-  in foldl removeStone newBoard deadCoords
+  in (length deadCoords, foldl removeStone newBoard deadCoords)
 
 logic :: Board -> Coord -> Player -> MoveResult
-logic b c p = let newBoard = placeAndRemoveDead b c p
+logic b c p = let (numRemoved, newBoard) = placeAndRemoveDead b c p
               in if isDeadGroup newBoard c then
                    Left Suicide
                  else if isKo newBoard then
                         Left Ko
-                      else Right newBoard
+                      else Right (numRemoved, newBoard)
