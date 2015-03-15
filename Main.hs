@@ -1,6 +1,6 @@
 module Main where
 
--- import qualified System.Console.ANSI as A
+import qualified System.Console.ANSI as A
 -- import Graphics.Vty.Widgets.All
 
 import Board
@@ -29,8 +29,8 @@ main = do
   where loop :: [Player] -> Board -> Maybe Coord -> (Int,Int,Int) -> String -> IO ()
         loop players b mLastCoord (blackCaptured, whiteCaptured, moveNum) message = do
           let retry err = loop players b mLastCoord (blackCaptured, whiteCaptured, moveNum) err
-          -- A.clearScreen
-          -- A.setCursorPosition 0 0
+          A.clearScreen
+          A.setCursorPosition 0 0
           putStrLn $ " Black Captured: " ++ show blackCaptured
           putStrLn $ " White Captured: " ++ show whiteCaptured
           newline
