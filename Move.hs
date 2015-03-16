@@ -61,13 +61,13 @@ prompt s = do
   getLine
 
 -- | Repeatedly prompts player for a game move until a valid coord or metacommand is entered
-getMove :: Player -> IO PlayerResponse
-getMove p = do
+getMove :: (Player, Int) -> IO PlayerResponse
+getMove str@(p, num) = do
   let player = case p of
         Black -> "Black"
         White -> "White"
-  response <- prompt $ player ++ ": "
+  response <- prompt $ player ++ "(" ++ show num ++ "): "
   case parse move "Failed to parse move" response of
-   -- Left _ -> putStrLn "Not a valid move." >> getMove p
+   -- Left _ -> putStrLn "Not a valid move." >> getMove str
    Left _ -> return Invalid
    Right m -> return m
