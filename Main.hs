@@ -7,12 +7,13 @@ import Board
 import Move
 import Logic
 
+playerSeq :: [Player]
 playerSeq = [Black, White] ++ playerSeq
 
 boardSet :: Board -> Coord -> Player -> MoveResult
 boardSet board@(Board b) coord@(Coord (x,y)) p =
   if isCoordOnBoard coord board  then
-    if not $ boardGet board coord == Empty then
+    if boardGet board coord /= Empty then
       Left Occupied
     else
       logic board coord p
@@ -21,37 +22,65 @@ boardSet board@(Board b) coord@(Coord (x,y)) p =
 newline :: IO ()
 newline = putStr "\n"
 
+data GameState = GS { player :: Player,
+                      board :: Board,
+                      lastPlayed :: Maybe Coord,
+                      moveNumber :: Int,
+                      whiteCaptured :: Int,
+                      blackCaptured :: Int,
+                      message :: String
+                    }
+
+startingGame :: GameState
+startingGame = GS { player = Black,
+                    board = initialBoard Nothing,
+                    lastPlayed = Nothing,
+                    moveNumber = 1,
+                    whiteCaptured = 0,
+                    blackCaptured = 0,
+                    message = ""
+                  }
+
 main :: IO ()
 main = do
-  let board = initialBoard $ Nothing
-  loop playerSeq board Nothing (0,0,1) ""
+  loop startingGame
   -- loop takes the infinite player sequence, the board, the triplet of black captured, white captured, and move number and a message from the last round
-  where loop :: [Player] -> Board -> Maybe Coord -> (Int,Int,Int) -> String -> IO ()
-        loop players b mLastCoord (blackCaptured, whiteCaptured, moveNum) message = do
-          let retry err = loop players b mLastCoord (blackCaptured, whiteCaptured, moveNum) err
+  where loop :: GameState -> IO ()
+        loop gs = do
+          let retry m = loop $ gs {message = m}
+              nextPlayer = if player gs == Black then White else Black
+              playerName = if player gs == Black then "Black" else "White"
           A.clearScreen
           A.setCursorPosition 0 0
-          putStrLn $ " Black Captured: " ++ show blackCaptured
-          putStrLn $ " White Captured: " ++ show whiteCaptured
+          putStrLn $ " Black Captured: " ++ show (blackCaptured gs)
+          putStrLn $ " White Captured: " ++ show (whiteCaptured gs)
           newline
-          putStrLn $ " Message: " ++ message ++ "\n"
+          putStrLn $ " Message: " ++ message gs ++ "\n"
           -- putStrLn $ showBoard b mLastCoord
-          print b
+          print $ board gs
           newline
-          move <- getMove (head players, moveNum)
+          move <- getMove (player gs, moveNumber gs)
 	  newline
           case move of
            Invalid -> retry "Invalid move."
-           MetaResponse Pass -> loop (tail players) b mLastCoord (blackCaptured, whiteCaptured, moveNum+1) (show (head players) ++ " passed")
+           MetaResponse Pass -> loop $ gs { player=nextPlayer,
+                                            moveNumber=moveNumber gs + 1,
+                                            message=playerName ++ " passed"
+                                          }
            MetaResponse Exit -> putStrLn "Bye!"
            MetaResponse Save -> retry "save feature is not implimented yet"
-           Position c -> let result = boardSet b c (head players)
+           Position c -> let result = boardSet (board gs) c (player gs)
                          in case result of
                              Left Occupied -> retry "Spaced is already occupied."
                              Left OutOfBounds -> retry "Position is off the board."
                              Left Ko -> retry "Invalid move due to ko rule."
                              Left Suicide -> retry "Move is suicidal."
-                             Right (numRemoved, b) -> let captured = case head players of
-                                                            White -> (numRemoved+blackCaptured, whiteCaptured, moveNum+1)
-                                                            Black -> (blackCaptured, numRemoved+whiteCaptured, moveNum+1)
-                                                      in loop (tail players) b (Just c) captured ""
+                             Right (numRemoved, b) -> case player gs of
+                                                       White -> loop $ gs {blackCaptured= numRemoved + blackCaptured gs,
+                                                                           moveNumber = moveNumber gs + 1,
+                                                                           board = b,
+                                                                           player = nextPlayer}
+                                                       Black -> loop $ gs {whiteCaptured=numRemoved+whiteCaptured gs,
+                                                                           moveNumber = moveNumber gs + 1,
+                                                                           board = b,
+                                                                           player=nextPlayer}
