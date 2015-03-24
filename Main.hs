@@ -1,7 +1,6 @@
 module Main where
 
-import qualified System.Console.ANSI as A
--- import Graphics.Vty.Widgets.All
+-- import qualified System.Console.ANSI as A
 
 import Board
 import Move
@@ -43,17 +42,18 @@ startingGame = GS { player = Black,
 
 main :: IO ()
 main = do
-  loop startingGame
+  let boardSize = 19
+  putStrLn $ " board size: " ++ show boardSize ++ "x" ++ show boardSize
+  newline
+  loop $ startingGame {board = initialBoard (Just boardSize)}
   -- loop takes the infinite player sequence, the board, the triplet of black captured, white captured, and move number and a message from the last round
   where loop :: GameState -> IO ()
         loop gs = do
           let retry m = loop $ gs {message = m}
               nextPlayer = if player gs == Black then White else Black
               playerName = if player gs == Black then "Black" else "White"
-          A.clearScreen
-          A.setCursorPosition 0 0
-          putStrLn $ " Black Captured: " ++ show (blackCaptured gs)
-          putStrLn $ " White Captured: " ++ show (whiteCaptured gs)
+          putStrLn $ " Black (X) Captured: " ++ show (blackCaptured gs)
+          putStrLn $ " White (O) Captured: " ++ show (whiteCaptured gs)
           newline
           putStrLn $ " Message: " ++ message gs ++ "\n"
           -- putStrLn $ showBoard b mLastCoord
@@ -67,7 +67,7 @@ main = do
                                             moveNumber=moveNumber gs + 1,
                                             message=playerName ++ " passed"
                                           }
-           MetaResponse Exit -> putStrLn "Bye!"
+           MetaResponse Exit -> putStrLn "Thanks for playing!"
            MetaResponse Save -> retry "save feature is not implimented yet"
            Position c -> let result = boardSet (board gs) c (player gs)
                          in case result of
@@ -75,14 +75,15 @@ main = do
                              Left OutOfBounds -> retry "Position is off the board."
                              Left Ko -> retry "Invalid move due to ko rule."
                              Left Suicide -> retry "Move is suicidal."
-                             Right (numRemoved, b) -> case player gs of
-                                                       White -> loop $ gs {blackCaptured= numRemoved + blackCaptured gs,
-                                                                           moveNumber = moveNumber gs + 1,
-                                                                           board = b,
-                                                                           player = nextPlayer,
-                                                                           message = ""}
-                                                       Black -> loop $ gs {whiteCaptured=numRemoved+whiteCaptured gs,
-                                                                           moveNumber = moveNumber gs + 1,
-                                                                           board = b,
-                                                                           player=nextPlayer,
-                                                                           message = ""}
+                             Right (numRemoved, b) ->
+                               case player gs of
+                                White -> loop $ gs {blackCaptured= numRemoved + blackCaptured gs,
+                                                    moveNumber = moveNumber gs + 1,
+                                                    board = b,
+                                                    player = nextPlayer,
+                                                    message = ""}
+                                Black -> loop $ gs {whiteCaptured=numRemoved+whiteCaptured gs,
+                                                    moveNumber = moveNumber gs + 1,
+                                                    board = b,
+                                                    player=nextPlayer,
+                                                    message = ""}
