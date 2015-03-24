@@ -76,14 +76,11 @@ main = do
                              Left Ko -> retry "Invalid move due to ko rule."
                              Left Suicide -> retry "Move is suicidal."
                              Right (numRemoved, b) ->
-                               case player gs of
-                                White -> loop $ gs {blackCaptured= numRemoved + blackCaptured gs,
-                                                    moveNumber = moveNumber gs + 1,
-                                                    board = b,
-                                                    player = nextPlayer,
-                                                    message = ""}
-                                Black -> loop $ gs {whiteCaptured=numRemoved+whiteCaptured gs,
-                                                    moveNumber = moveNumber gs + 1,
-                                                    board = b,
-                                                    player=nextPlayer,
-                                                    message = ""}
+                               let capturedState =
+                                     case player gs of
+                                      White -> gs {blackCaptured = numRemoved + blackCaptured gs}
+                                      Black -> gs {whiteCaptured = numRemoved + whiteCaptured gs}
+                               in loop $ capturedState {moveNumber = moveNumber gs + 1,
+                                                        board = b,
+                                                        player=nextPlayer,
+                                                        message = ""}
