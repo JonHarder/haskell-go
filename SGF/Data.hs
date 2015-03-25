@@ -2,7 +2,8 @@ module SGF.Data where
 
 data Tree = Empty | Branch {commands :: [Command], tree :: Tree}
 
-data MoveCommand = BlackMove | WhiteMove deriving (Show, Eq)
-data MetaCommand = Comment | BlackPlace | WhitePlace deriving (Show,Eq)
+newtype Location = L (Int,Int) deriving (Show, Eq)
+data MoveCommand = BlackMove Location | WhiteMove Location deriving (Show, Eq)
+data MetaCommand = Comment String | BlackPlace Location | WhitePlace Location deriving (Show,Eq)
 
-data Command = MoveCommand | MetaCommand
+data Command = Move MoveCommand | Meta MetaCommand deriving Show
